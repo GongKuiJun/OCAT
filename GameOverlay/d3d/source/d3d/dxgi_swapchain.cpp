@@ -52,7 +52,7 @@ DXGISwapChain::DXGISwapChain(ID3D11Device *device, IDXGISwapChain1 *swapChain)
 }
 
 DXGISwapChain::DXGISwapChain(ID3D12CommandQueue *commandQueue, IDXGISwapChain *swapChain)
-    : d3d12CommandQueue_{commandQueue},
+	: d3d12CommandQueue_{commandQueue},
       swapChain_{swapChain},
       d3dVersion_{D3DVersion_12},
       swapChainVersion_{SWAPCHAIN_3}
@@ -65,9 +65,9 @@ DXGISwapChain::DXGISwapChain(ID3D12CommandQueue *commandQueue, IDXGISwapChain *s
 // IUnknown
 HRESULT STDMETHODCALLTYPE DXGISwapChain::QueryInterface(REFIID riid, void **ppvObj)
 {
-  g_messageLog.LogVerbose("QueryInterface", "Entered function");
+  g_messageLog.LogInfo("QueryInterface", "Entered function");
   if (ppvObj == nullptr) {
-    g_messageLog.LogVerbose("QueryInterface", "Invalid pointer");
+    g_messageLog.LogInfo("QueryInterface", "Invalid pointer");
     return E_POINTER;
   }
 
@@ -92,7 +92,7 @@ HRESULT STDMETHODCALLTYPE DXGISwapChain::QueryInterface(REFIID riid, void **ppvO
     swapChain_ = swapchain;
     swapChainVersion_ = SWAPCHAIN_0;
     swapChainUpdated = true;
-    g_messageLog.LogVerbose("QueryInterface", "Swap chain created");
+    g_messageLog.LogInfo("QueryInterface", "Swap chain created");
   }
 #pragma endregion
 #pragma region Update to IDXGISwapChain1 interface
@@ -115,7 +115,7 @@ HRESULT STDMETHODCALLTYPE DXGISwapChain::QueryInterface(REFIID riid, void **ppvO
     swapChain_ = swapchain1;
     swapChainVersion_ = SWAPCHAIN_1;
     swapChainUpdated = true;
-    g_messageLog.LogVerbose("QueryInterface", "Swap chain 1 created");
+    g_messageLog.LogInfo("QueryInterface", "Swap chain 1 created");
   }
 #pragma endregion
 #pragma region Update to IDXGISwapChain2 interface
@@ -138,7 +138,7 @@ HRESULT STDMETHODCALLTYPE DXGISwapChain::QueryInterface(REFIID riid, void **ppvO
     swapChain_ = swapchain2;
     swapChainVersion_ = SWAPCHAIN_2;
     swapChainUpdated = true;
-    g_messageLog.LogVerbose("QueryInterface", "Swap chain 2 created");
+    g_messageLog.LogInfo("QueryInterface", "Swap chain 2 created");
   }
 #pragma endregion
 #pragma region Update to IDXGISwapChain3 interface
@@ -161,7 +161,7 @@ HRESULT STDMETHODCALLTYPE DXGISwapChain::QueryInterface(REFIID riid, void **ppvO
     swapChain_ = swapchain3;
     swapChainVersion_ = SWAPCHAIN_3;
     swapChainUpdated = true;
-    g_messageLog.LogVerbose("QueryInterface", "Swap chain 3 created");
+    g_messageLog.LogInfo("QueryInterface", "Swap chain 3 created");
   }
 #pragma endregion
 #pragma region Update to IDXGISwapChain4 interface
@@ -184,18 +184,18 @@ HRESULT STDMETHODCALLTYPE DXGISwapChain::QueryInterface(REFIID riid, void **ppvO
     swapChain_ = swapchain4;
     swapChainVersion_ = SWAPCHAIN_4;
     swapChainUpdated = true;
-    g_messageLog.LogVerbose("QueryInterface", "Swap chain 4 created");
+    g_messageLog.LogInfo("QueryInterface", "Swap chain 4 created");
   }
 #pragma endregion
 
   if (swapChainUpdated || g_uwpApp) {
     AddRef();
     *ppvObj = this;
-    g_messageLog.LogVerbose("QueryInterface", "Return this");
+    g_messageLog.LogInfo("QueryInterface", "Return this");
     return S_OK;
   }
   else {
-    g_messageLog.LogVerbose("QueryInterface", "Forward query interface");
+    g_messageLog.LogInfo("QueryInterface", "Forward query interface");
     return swapChain_->QueryInterface(riid, ppvObj);
   }
 }
@@ -207,7 +207,14 @@ ULONG STDMETHODCALLTYPE DXGISwapChain::AddRef()
 
 ULONG STDMETHODCALLTYPE DXGISwapChain::Release()
 {
-  return swapChain_->Release();
+  ULONG ref = swapChain_->Release();
+
+  if (ref == 1)
+  {
+    delete this;
+  }
+
+  return ref;
 }
 
 // IDXGIObject
@@ -304,6 +311,7 @@ HRESULT STDMETHODCALLTYPE DXGISwapChain::GetDesc(DXGI_SWAP_CHAIN_DESC *pDesc)
 HRESULT STDMETHODCALLTYPE DXGISwapChain::ResizeBuffers(UINT BufferCount, UINT Width, UINT Height,
                                                        DXGI_FORMAT NewFormat, UINT SwapChainFlags)
 {
+  g_messageLog.LogInfo("DXGISwapChain", "ResizeBuffers");
   d3d11Renderer_.reset();
   d3d12Renderer_.reset();
 
@@ -471,6 +479,7 @@ HRESULT STDMETHODCALLTYPE DXGISwapChain::ResizeBuffers1(UINT BufferCount, UINT W
                                                         const UINT *pCreationNodeMask,
                                                         IUnknown *const *ppPresentQueue)
 {
+  g_messageLog.LogInfo("DXGISwapChain", "ResizeBuffers1");
   d3d11Renderer_.reset();
   d3d12Renderer_.reset();
 

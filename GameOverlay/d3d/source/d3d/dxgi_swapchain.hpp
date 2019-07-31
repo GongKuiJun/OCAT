@@ -125,6 +125,7 @@ struct DXGISwapChain : IDXGISwapChain4 {
   // either d3d11 or d3d12 is used
   std::unique_ptr<GameOverlay::d3d11_renderer> d3d11Renderer_;
   std::unique_ptr<GameOverlay::d3d12_renderer> d3d12Renderer_;
+
   Microsoft::WRL::ComPtr<ID3D11Device> const d3d11Device_;
   Microsoft::WRL::ComPtr<ID3D12CommandQueue> const d3d12CommandQueue_;
 
